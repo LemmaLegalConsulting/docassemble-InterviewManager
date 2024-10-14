@@ -1,0 +1,13 @@
+---
+############## Interview Manager ##############
+# Include this file in any interviews you distribute to make use of the metadata features of the Interview Manager.
+---
+initial: True
+code: |
+  if url_args.get("interview_metadata_owner"):
+    im_temp_metadata = get_interview_metadata(
+      user_info().filename, user_info().session
+    )
+    im_temp_metadata["interview_metadata_owner"] = url_args.get("interview_metadata_owner")
+    set_current_session_metadata(im_temp_metadata)
+    del(im_temp_metadata)

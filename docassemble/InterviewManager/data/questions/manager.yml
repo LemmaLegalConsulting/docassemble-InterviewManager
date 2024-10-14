@@ -1,0 +1,102 @@
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - .interview_manager
+  - docassemble.AssemblyLine.sessions
+---
+metadata:
+  title: |
+    Interview Manager
+  description: |
+    A dashboard to create interview links tied to a specific advocate and view the filtered list of interviews.
+  sessions are unique: True  
+---
+mandatory: True
+code: |
+  selected_interview
+  if action_to_take == "get_link":
+    if send_by_email:
+      sent_email
+      if not email_status:
+        exit_email_went_wrong
+    else:
+      show_launch_link
+  elif action_to_take == "view_sessions":
+    view_selected_sessions
+  elif action_to_take == "view_all_sessions":
+    view_all_sessions
+---
+id: launch page
+question: |
+  Manage your interviews
+fields:
+  - Action: action_to_take
+    datatype: radio
+    choices:
+      - Get a sharing link: get_link
+      - View sessions for selected interview: view_sessions
+      - View all sessions you own: view_all_sessions
+  - Interview: selected_interview
+    datatype: radio
+    code: |
+      get_distributable_interviews()
+    js show if: |
+      val('action_to_take') === 'get_link' || val('action_to_take') === 'view_sessions'
+  - Link valid for (days): valid_days
+    datatype: integer
+    default: 14
+    show if:
+      variable: action_to_take
+      is: get_link
+  - Send by email (optional): send_by_email
+    datatype: yesno
+    show if:
+      variable: action_to_take
+      is: get_link
+  - To: interview_recipient
+    datatype: email
+    show if: send_by_email
+---
+template: send_by_email_template
+subject: |
+  You have a new interview to complete from ${ user_info().first_name } ${ user_info().last_name }
+content: |  
+  [Start interview](${ launch_link })
+
+  Link not working? Copy and paste the following URL into your browser: ${ launch_link }
+---
+code: |
+  if action_not_yet_performed("send by email"):
+    email_status = send_email(to=interview_recipient, template=send_by_email_template, action="send by email")
+  sent_email = True
+---
+event: exit_email_went_wrong
+question: |
+  Something went wrong sending your email
+subquestion: |
+  Right-click and copy this link to share it with your client: [${ launch_link }](${ launch_link })
+
+  You may also want to let your server administrator know.
+---
+event: show_launch_link
+question: |
+  Here is your sharing link
+subquestion: |
+  Right-click and copy this link to share it with your client: [${ launch_link }](${ launch_link })
+---
+code: |
+  launch_link = interview_url_with_owner(selected_interview, valid_days=None)
+
+---
+event: view_selected_sessions
+question: |
+  Sessions for ${ selected_interview }
+subquestion: |
+
+  ${ session_list_html(answers = find_matching_sessions(filenames={selected_interview}, keyword=None, metadata_filters = {"interview_metadata_owner": (user_info().email, "ILIKE")}, user_id="all")) }
+---
+event: view_all_sessions
+question: |
+  All sessions you own
+subquestion: |
+  ${ session_list_html(answers = find_matching_sessions(filenames={selected_interview}, keyword=None, user_id="all")) }
