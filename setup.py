@@ -54,7 +54,7 @@ setup(name='docassemble.InterviewManager',
       url='https://lemmalegal.com',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=[],
+      install_requires=["docassemble.AssemblyLine", "docassemble.ALToolbox"],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/InterviewManager/', package='docassemble.InterviewManager'),
      )

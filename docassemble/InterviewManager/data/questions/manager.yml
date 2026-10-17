@@ -79,6 +79,7 @@ subquestion: |
   You may also want to let your server administrator know.
 ---
 event: show_launch_link
+id: sharing link ready
 question: |
   Here is your sharing link
 subquestion: |
