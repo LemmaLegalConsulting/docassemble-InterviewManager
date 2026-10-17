@@ -3,6 +3,7 @@ Feature: Share an interview link
 
   Scenario: Create a sharing link without sending email
     Given the maximum seconds for each step is 60
+    And I sign in with the email "DA_ADMIN_EMAIL" and the password "DA_ADMIN_PASSWORD"
     And I start the interview at "manager.yml"
     And I get to the question id "sharing link ready" with this data:
       | var | value |
